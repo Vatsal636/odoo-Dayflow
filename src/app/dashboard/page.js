@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Clock, Calendar, ArrowRight, Sun } from "lucide-react"
+import { Clock, Calendar, ArrowRight, Sun, Trophy, Timer, AlertCircle, CheckCircle2 } from "lucide-react"
 
 function formatTime(ms) {
     if (ms < 0) ms = 0
@@ -20,6 +20,13 @@ export default function EmployeeDashboard() {
         checkInTime: null,
         checkOutTime: null
     })
+    const [stats, setStats] = useState({
+        presentDays: 0,
+        lateDays: 0,
+        totalHours: 0,
+        leaveBalance: 0
+    })
+    const [leaderboard, setLeaderboard] = useState([])
     const [elapsed, setElapsed] = useState(0)
     const [isLoading, setIsLoading] = useState(true)
 
@@ -29,20 +36,33 @@ export default function EmployeeDashboard() {
         return () => clearInterval(timer)
     }, [])
 
-    // Fetch Status & Timer Logic
+    // Fetch All Data
     useEffect(() => {
-        async function fetchStatus() {
+        async function fetchData() {
             try {
-                const res = await fetch('/api/attendance')
-                if (res.ok) {
-                    const data = await res.json()
-                    setAttendance(data)
+                // Attendance Status
+                const resAuth = await fetch('/api/attendance')
+                if (resAuth.ok) setAttendance(await resAuth.json())
+
+                // Stats
+                const resStats = await fetch('/api/dashboard/stats')
+                if (resStats.ok) {
+                    const data = await resStats.json()
+                    setStats(data.stats)
                 }
+
+                // Leaderboard
+                const resLB = await fetch('/api/leaderboard')
+                if (resLB.ok) {
+                    const data = await resLB.json()
+                    setLeaderboard(data.leaderboard || [])
+                }
+
             } finally {
                 setIsLoading(false)
             }
         }
-        fetchStatus()
+        fetchData()
 
         // Timer Interval
         const interval = setInterval(() => {
@@ -106,15 +126,12 @@ export default function EmployeeDashboard() {
         show: { y: 0, opacity: 1 }
     }
 
-    // Calculate leave balance mockup for now
-    const leaveBalance = 12.5
-
     return (
         <motion.div
             variants={container}
             initial="hidden"
             animate="show"
-            className="space-y-8"
+            className="space-y-8 pb-12"
         >
             {/* Welcome Section */}
             <motion.div variants={item} className="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -137,9 +154,9 @@ export default function EmployeeDashboard() {
                 </div>
             </motion.div>
 
-            {/* Quick Stats / Attendance Card */}
+            {/* Main Action Grid */}
             <motion.div variants={item} className="grid md:grid-cols-3 gap-6">
-                {/* Check In Action Card */}
+                {/* Check In/Out Card */}
                 <div className="md:col-span-2 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-8 text-white relative overflow-hidden shadow-xl shadow-blue-500/20 group">
                     <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
                         <Clock className="w-32 h-32" />
@@ -190,65 +207,75 @@ export default function EmployeeDashboard() {
                     )}
                 </div>
 
-                {/* Leave Balance Card */}
-                <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm flex flex-col justify-between">
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <h2 className="text-lg font-bold text-slate-900">Leave Balance</h2>
-                            <p className="text-slate-500 text-sm">Available days</p>
-                        </div>
-                        <div className="p-3 bg-green-50 text-green-600 rounded-xl">
-                            <Calendar className="w-6 h-6" />
-                        </div>
-                    </div>
+                {/* Monthly Stats Summary */}
+                <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between space-y-4 text-slate-800">
                     <div>
-                        <div className="text-4xl font-bold text-slate-900 mb-2">12.5 <span className="text-lg text-slate-400 font-medium">days</span></div>
-                        <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                            <div className="bg-green-500 w-[60%] h-full rounded-full" />
+                        <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
+                            <CheckCircle2 className="w-5 h-5 text-green-500" />
+                            Monthly Overview
+                        </h3>
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center bg-slate-50 p-3 rounded-xl">
+                                <span className="text-sm text-slate-500">Days Present</span>
+                                <span className="font-bold text-slate-900">{stats.presentDays}</span>
+                            </div>
+                            <div className="flex justify-between items-center bg-slate-50 p-3 rounded-xl">
+                                <span className="text-sm text-slate-500">Total Hours</span>
+                                <span className="font-bold text-slate-900">{stats.totalHours} h</span>
+                            </div>
+                            <div className="flex justify-between items-center bg-slate-50 p-3 rounded-xl">
+                                <span className="text-sm text-slate-500">Late Arrivals</span>
+                                <span className={`font-bold ${stats.lateDays > 2 ? 'text-red-500' : 'text-slate-900'}`}>{stats.lateDays}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </motion.div>
 
-            {/* Recent Activity / Widgets */}
-            <div className="grid md:grid-cols-2 gap-8">
-                <motion.div variants={item} className="bg-white rounded-3xl border border-slate-100 p-6">
-                    <div className="flex items-center justify-between mb-6">
-                        <h3 className="font-bold text-slate-900">Recent Activity</h3>
-                        <button className="text-sm text-blue-600 font-medium hover:underline">View All</button>
-                    </div>
-                    <div className="space-y-4">
-                        {[1, 2, 3].map(i => (
-                            <div key={i} className="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-xl transition-colors cursor-default">
-                                <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-xs">
-                                    IN
-                                </div>
-                                <div>
-                                    <p className="text-sm font-semibold text-slate-900">Checked In</p>
-                                    <p className="text-xs text-slate-500">Yesterday, 09:28 AM</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </motion.div>
+            {/* Leaderboard Section */}
+            <motion.div variants={item}>
+                <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <Trophy className="w-6 h-6 text-yellow-500" />
+                        Leaderboard Top Performers
+                    </h3>
+                    <a href="/dashboard/leaderboard" className="text-sm text-blue-600 font-bold hover:underline">View Full Leaderboard</a>
+                </div>
 
-                <motion.div variants={item} className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 text-white">
-                    <h3 className="font-bold text-lg mb-4">Upcoming Holidays</h3>
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-4">
-                            <div className="bg-white/10 p-3 rounded-xl text-center min-w-[60px]">
-                                <div className="text-xs opacity-60 uppercase font-bold">Jan</div>
-                                <div className="text-xl font-bold">26</div>
-                            </div>
-                            <div>
-                                <p className="font-semibold">Republic Day</p>
-                                <p className="text-sm opacity-60">National Holiday</p>
-                            </div>
-                        </div>
-                    </div>
-                </motion.div>
-            </div>
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {leaderboard.slice(0, 4).map((category) => {
+                        const winner = category.rankings[0]
+                        return (
+                            <div key={category.id} className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className={`p-2 rounded-lg bg-slate-100`}>
+                                        {/* Simple Icon Map */}
+                                        {category.icon === 'sun' && <Sun className="w-5 h-5 text-amber-500" />}
+                                        {category.icon === 'dumbbell' && <CheckCircle2 className="w-5 h-5 text-red-500" />}
+                                        {category.icon === 'clock' && <Timer className="w-5 h-5 text-purple-500" />}
+                                        {category.icon === 'plane' && <AlertCircle className="w-5 h-5 text-blue-500" />}
+                                    </div>
+                                    <h4 className="font-bold text-slate-700 text-sm">{category.title}</h4>
+                                </div>
 
+                                {winner ? (
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden flex-shrink-0">
+                                            {winner.avatar ? <img src={winner.avatar} className="w-full h-full object-cover" /> : null}
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className="font-bold text-slate-900 truncate">{winner.name}</p>
+                                            <p className="text-xs text-slate-500 font-bold bg-slate-50 px-2 py-0.5 rounded-full w-fit mt-1">{winner.score}</p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="text-xs text-slate-400 py-2">No data yet</div>
+                                )}
+                            </div>
+                        )
+                    })}
+                </div>
+            </motion.div>
         </motion.div>
     )
 }
