@@ -9,8 +9,8 @@ const defaultAdminItems = [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
     { name: "Employees", href: "/admin/employees", icon: Users },
     { name: "Attendance", href: "/admin/attendance", icon: Clock },
-    { name: "Leaves", href: "/admin/leaves", icon: Calendar },
     { name: "Payroll", href: "/admin/payroll", icon: Banknote },
+    { name: "Leaves", href: "/admin/leaves", icon: Calendar },
     // { name: "Reports", href: "/admin/reports", icon: FileText },
 ]
 

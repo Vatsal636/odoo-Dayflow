@@ -15,14 +15,14 @@ export async function middleware(request) {
     const token = request.cookies.get('token')?.value
 
     if (!token) {
-        return NextResponse.redirect(new URL('/', request.url))
+        return NextResponse.redirect(new URL('/login', request.url))
     }
 
     const payload = await verifyToken(token)
 
     if (!payload) {
         // Invalid token
-        return NextResponse.redirect(new URL('/', request.url))
+        return NextResponse.redirect(new URL('/login', request.url))
     }
 
     // Check for First Login enforcement

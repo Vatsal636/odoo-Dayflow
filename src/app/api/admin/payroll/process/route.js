@@ -21,12 +21,9 @@ export async function POST(request) {
         const endDate = new Date(year, month + 1, 0)
         const daysInMonth = endDate.getDate()
 
-        // 1. Fetch all employees with Salary Structure
+        // 1. Fetch all employees (even those without defined salary)
         const employees = await prisma.user.findMany({
-            where: {
-                role: 'EMPLOYEE',
-                salary: { isNot: null } // Only those with defined salary
-            },
+            where: { role: 'EMPLOYEE' },
             include: {
                 salary: true,
                 details: true
@@ -36,7 +33,19 @@ export async function POST(request) {
         const payrolls = []
 
         for (const emp of employees) {
-            // 2. Fetch Attendance Count for this month
+            // Default salary if not defined
+            let salary = emp.salary
+            if (!salary) {
+                const wage = 50000
+                salary = {
+                    wage: wage,
+                    netSalary: wage - (wage * 0.5 * 0.12) - 200, // Approx fallback
+                    pf: wage * 0.5 * 0.12,
+                    profTax: 200
+                }
+            }
+
+            // 2. Fetch Attendance Count
             const attendanceCount = await prisma.attendance.count({
                 where: {
                     userId: emp.id,
@@ -44,7 +53,7 @@ export async function POST(request) {
                         gte: startDate,
                         lte: endDate
                     },
-                    status: { in: ['PRESENT', 'HALF_DAY', 'LATE'] } // Assuming these count as present
+                    status: { in: ['PRESENT', 'HALF_DAY'] }
                 }
             })
 
@@ -55,48 +64,22 @@ export async function POST(request) {
                 if (date.getDay() === 0) sundays++
             }
 
-            // Note: If an employee worked on Sunday, attendanceCount would capture it? 
-            // My seed script skipped Sundays. So AttendanceCount + Sundays is safe for now.
-            // If they check-in on Sunday, we shouldn't double count. 
-            // Refinement: Count present days where day is NOT Sunday. Then add all Sundays.
-            // For now, simpler: Payable = Attendance + Sundays. (Assumes no Sunday work).
-
             const payableDays = Math.min(attendanceCount + sundays, daysInMonth)
 
             // 4. Calculate Payout
-            // Structure Net Salary is for full month.
-            const baseNet = emp.salary.netSalary
+            const baseNet = salary.netSalary
             const perDayPay = baseNet / daysInMonth
             const finalNetPay = Math.round(perDayPay * payableDays)
 
-            const totalDeductions = Math.round(emp.salary.pf + emp.salary.profTax + (baseNet - finalNetPay)) // Include LOP in deductions for display?
-            // Actually, LOP isn't a deduction from 'Earnings', it reduces 'Earnings'.
-            // But to fit schema 'netPay', simplified:
+            // Validating numbers to avoid NaN
+            const safeBaseNet = baseNet || 0
+            const safeFinalNet = finalNetPay || 0
+            const safePF = salary.pf || 0
+            const safeProfTax = salary.profTax || 0
 
-            // Let's store logic:
-            const payroll = await prisma.payroll.upsert({
-                where: {
-                    // Composite key simulation or check existing? Schema doesn't have composite unique on user+month+year.
-                    // We need to findFirst and update, or just create. Prisama upsert needs unique.
-                    // The schema has `id`. We can't easy upsert without unique logic.
-                    // Let's use transaction or findFirst.
-                    id: -1 // Hack to fail match unless we find ID.
-                },
-                update: {}, // formatting dummy 
-                create: {
-                    userId: emp.id,
-                    month: parseInt(month),
-                    year: parseInt(year),
-                    baseWage: emp.salary.wage,
-                    totalEarnings: finalNetPay + totalDeductions, // Roughly reconstruction
-                    totalDeductions: totalDeductions,
-                    netPay: finalNetPay,
-                    status: 'GENERATED'
-                }
-            })
-            // Wait, upsert needs a valid unique constraint. I don't have user_month_year unique.
-            // I will use deleteMany + create to "Ovewrite" for that month.
+            const totalDeductions = Math.round(safePF + safeProfTax + (safeBaseNet - safeFinalNet))
 
+            // Delete old record for this month
             await prisma.payroll.deleteMany({
                 where: { userId: emp.id, month: parseInt(month), year: parseInt(year) }
             })
@@ -104,13 +87,12 @@ export async function POST(request) {
             const newPayroll = await prisma.payroll.create({
                 data: {
                     userId: emp.id,
-                    month: parseInt(month), // Store as 0-indexed? Or 1? Usually 1 is better for humans, but JS is 0. 
-                    // Let's store as 0-indexed to match input consistent with JS Date.
+                    month: parseInt(month),
                     year: parseInt(year),
-                    baseWage: emp.salary.wage,
-                    totalEarnings: emp.salary.netSalary + emp.salary.pf + emp.salary.profTax, // The full earnings potential
-                    totalDeductions: (emp.salary.netSalary - finalNetPay) + emp.salary.pf + emp.salary.profTax, // LOP + Statutory
-                    netPay: finalNetPay,
+                    baseWage: salary.wage,
+                    totalEarnings: safeBaseNet + safePF + safeProfTax, // Gross estimation
+                    totalDeductions: totalDeductions,
+                    netPay: safeFinalNet,
                     status: 'GENERATED'
                 }
             })
