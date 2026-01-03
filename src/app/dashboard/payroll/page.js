@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { DollarSign, Calendar, Download, ChevronRight, FileText } from "lucide-react"
+import Link from "next/link"
+import { DollarSign, Calendar, Download, ChevronRight, FileText, Calculator } from "lucide-react"
 
 export default function PayrollPage() {
     const [payrolls, setPayrolls] = useState([])
@@ -33,9 +34,23 @@ export default function PayrollPage() {
         <div className="grid lg:grid-cols-12 gap-6 h-[calc(100vh-100px)]">
             {/* Sidebar List */}
             <div className="lg:col-span-4 bg-white rounded-2xl border border-slate-100 shadow-sm flex flex-col overflow-hidden">
-                <div className="p-4 border-b border-slate-100 bg-white sticky top-0 z-10">
-                    <h2 className="text-lg font-bold text-slate-900">Payslips</h2>
-                    <p className="text-slate-500 text-sm">Monthly salary statements</p>
+                <div className="p-4 border-b border-slate-100 bg-white sticky top-0 z-10 space-y-4">
+                    <div>
+                        <h2 className="text-lg font-bold text-slate-900">Payslips</h2>
+                        <p className="text-slate-500 text-sm">Monthly salary statements</p>
+                    </div>
+                    <Link href="/dashboard/payroll/simulator" className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl text-white shadow-md hover:shadow-lg transition-all group">
+                        <div className="flex items-center gap-3">
+                            <div className="bg-white/20 p-2 rounded-lg">
+                                <Calculator className="w-5 h-5" />
+                            </div>
+                            <div className="text-left">
+                                <p className="font-bold text-sm">Salary Simulator</p>
+                                <p className="text-xs text-blue-100">Predict your in-hand</p>
+                            </div>
+                        </div>
+                        <ChevronRight className="w-4 h-4 opacity-70 group-hover:translate-x-1 transition-transform" />
+                    </Link>
                 </div>
 
                 <div className="overflow-y-auto flex-1 p-2 space-y-1 custom-scrollbar">
