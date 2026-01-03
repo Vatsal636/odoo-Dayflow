@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
+import { sendWelcomeEmail } from '@/lib/email'
 
 // Helper to generate Employee ID
 async function generateEmployeeId(firstName, lastName, joiningDate) {
@@ -97,22 +98,24 @@ export async function POST(request) {
                             address
                         }
                     },
-                    // Initialize empty Salary Structure to avoid null checks later? 
+                    // Initialize empty Salary Structure to avoid null checks later?
                     // Requirement says salary is manually entered. We can leave it null or init 0.
                 }
             })
             return user
         })
 
-        // 4. Mock Email Sending
-        console.log(`[EMAIL MOCK] To: ${email}, Subject: Welcome to Dayflow`, {
-            message: `Your login ID: ${employeeId}, Password: ${rawPassword}`
-        })
+        // 4. Send Welcome Email
+        try {
+            await sendWelcomeEmail(email, `${firstName} ${lastName}`, employeeId, rawPassword)
+        } catch (emailError) {
+            console.error("Failed to send welcome email:", emailError)
+            // We don't fail the request if email fails, but we log it.
+        }
 
         return NextResponse.json({
             success: true,
             user: newUser,
-            debugPassword: rawPassword // Returning for dev convenience in specific scenarios
         })
 
     } catch (error) {

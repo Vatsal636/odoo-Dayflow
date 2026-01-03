@@ -25,6 +25,15 @@ export async function middleware(request) {
         return NextResponse.redirect(new URL('/', request.url))
     }
 
+    // Check for First Login enforcement
+    // We must allow the setup page itself content updates to API
+    const isSetupPage = path === '/auth/setup'
+    const isApiParams = path.startsWith('/api')
+
+    if (payload.firstLogin && !isSetupPage && !isApiParams) {
+        return NextResponse.redirect(new URL('/auth/setup', request.url))
+    }
+
     // Admin Check
     if (path.startsWith('/admin') && payload.role !== 'ADMIN') {
         return NextResponse.redirect(new URL('/dashboard', request.url)) // Redirect generic dashboard
