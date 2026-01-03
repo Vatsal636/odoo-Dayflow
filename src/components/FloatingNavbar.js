@@ -37,7 +37,7 @@ export default function FloatingNavbar({ items }) {
                             className="relative flex items-center"
                         >
                             <motion.div
-                                className={`relative px-4 py-3 rounded-full flex items-center gap-2 transition-colors ${isActive ? "" : "hover:bg-white/10"}`}
+                                className={`relative px-4 py-3 rounded-full flex items-center transition-colors ${isActive ? "" : "hover:bg-white/10"}`}
                                 initial="initial"
                                 whileHover="hover"
                             >
@@ -53,10 +53,10 @@ export default function FloatingNavbar({ items }) {
 
                                 <motion.span
                                     variants={{
-                                        initial: { width: 0, opacity: 0, display: "none" },
-                                        hover: { width: "auto", opacity: 1, display: "block" }
+                                        initial: { width: 0, opacity: 0, marginLeft: 0 },
+                                        hover: { width: "auto", opacity: 1, marginLeft: 8 }
                                     }}
-                                    transition={{ duration: 0.3, ease: "easeOut" }}
+                                    transition={{ type: "spring", bounce: 0, duration: 0.5 }}
                                     className="text-sm font-medium whitespace-nowrap overflow-hidden relative z-10"
                                 >
                                     {label}

@@ -4,13 +4,14 @@ import FloatingNavbar from "@/components/FloatingNavbar"
 import { LayoutDashboard, CalendarCheck, FileText, User } from "lucide-react"
 
 // Reuse the Floating Navbar logic but with Employee links
+const navItems = [
+    { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+    { label: "Attendance", icon: CalendarCheck, href: "/dashboard/attendance" }, // Planned
+    { label: "Leaves", icon: FileText, href: "/dashboard/leaves" }, // Planned
+    { label: "Profile", icon: User, href: "/dashboard/profile" }, // Planned
+]
+
 export default function EmployeeLayout({ children }) {
-    const navItems = [
-        { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
-        { label: "Attendance", icon: CalendarCheck, href: "/dashboard/attendance" }, // Planned
-        { label: "Leaves", icon: FileText, href: "/dashboard/leaves" }, // Planned
-        { label: "Profile", icon: User, href: "/dashboard/profile" }, // Planned
-    ]
 
     return (
         <div className="min-h-screen bg-slate-50 selection:bg-blue-100 selection:text-blue-900">
