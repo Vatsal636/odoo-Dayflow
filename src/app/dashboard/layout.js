@@ -1,13 +1,14 @@
 "use client"
 
 import FloatingNavbar from "@/components/FloatingNavbar"
-import { LayoutDashboard, CalendarCheck, FileText, User, Banknote } from "lucide-react"
+import { LayoutDashboard, CalendarCheck, FileText, User, Banknote, MessageCircle } from "lucide-react"
 
 // Reuse the Floating Navbar logic but with Employee links
 const navItems = [
     { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
     { label: "Attendance", icon: CalendarCheck, href: "/dashboard/attendance" }, // Planned
     { label: "Payroll", icon: Banknote, href: "/dashboard/payroll" },
+    { label: "Chat", icon: MessageCircle, href: "/dashboard/chat" },
     { label: "Leaves", icon: FileText, href: "/dashboard/leaves" }, // Planned
     { label: "Profile", icon: User, href: "/dashboard/profile" }, // Planned
 ]
