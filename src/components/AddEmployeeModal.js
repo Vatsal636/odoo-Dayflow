@@ -121,7 +121,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onRefresh }) {
                                                 required
                                                 value={formData.firstName}
                                                 onChange={handleChange}
-                                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none text-slate-900"
                                             />
                                         </div>
                                         <div className="space-y-2">
@@ -131,7 +131,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onRefresh }) {
                                                 required
                                                 value={formData.lastName}
                                                 onChange={handleChange}
-                                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none text-slate-900"
                                             />
                                         </div>
                                     </div>
@@ -144,7 +144,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onRefresh }) {
                                             required
                                             value={formData.email}
                                             onChange={handleChange}
-                                            className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                                            className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none text-slate-900"
                                         />
                                     </div>
 
@@ -156,7 +156,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onRefresh }) {
                                                 required
                                                 value={formData.jobTitle}
                                                 onChange={handleChange}
-                                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none text-slate-900"
                                             />
                                         </div>
                                         <div className="space-y-2">
@@ -166,7 +166,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onRefresh }) {
                                                 required
                                                 value={formData.department}
                                                 onChange={handleChange}
-                                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none bg-white"
+                                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none bg-white text-slate-900"
                                             >
                                                 <option value="">Select Department</option>
                                                 <option value="Engineering">Engineering</option>
@@ -188,7 +188,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onRefresh }) {
                                                 required
                                                 value={formData.joiningDate}
                                                 onChange={handleChange}
-                                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none text-slate-900"
                                             />
                                         </div>
                                         <div className="space-y-2">
@@ -197,7 +197,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onRefresh }) {
                                                 name="phone"
                                                 value={formData.phone}
                                                 onChange={handleChange}
-                                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none text-slate-900"
                                             />
                                         </div>
                                     </div>
