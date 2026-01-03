@@ -2,13 +2,20 @@
 
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { Plus, Search, Mail, Phone, MoreHorizontal } from "lucide-react"
+import { Plus, Search, Mail, Phone, MoreHorizontal, Users } from "lucide-react"
 import AddEmployeeModal from "@/components/AddEmployeeModal"
 
 export default function AdminDashboard() {
     const [employees, setEmployees] = useState([])
     const [loading, setLoading] = useState(true)
     const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+
+    const [stats, setStats] = useState([
+        { label: 'Total Employees', value: '-', change: '...', icon: Users },
+        { label: 'Present Today', value: '-', change: '...', icon: Phone }, // reusing Phone icon as placeholder if UserCheck not imported, will fix imports
+        { label: 'Pending Leaves', value: '-', change: '...', icon: Mail },
+        { label: 'Payroll Status', value: '-', change: '...', icon: MoreHorizontal },
+    ])
 
     // Mock data for initial render if API fails or empty
     const mockEmployees = [
@@ -34,7 +41,22 @@ export default function AdminDashboard() {
     }
 
     useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const res = await fetch('/api/admin/stats')
+                if (res.ok) {
+                    const data = await res.json()
+                    // Map string icons to components if dynamic, or just map values
+                    setStats(prev => prev.map((s, i) => ({ ...s, ...data.stats[i] })))
+                }
+            } catch (e) {
+                console.error(e)
+            }
+        }
+
+        // ... existing fetchEmployees call
         fetchEmployees()
+        fetchStats()
     }, [])
 
     const container = {
@@ -63,18 +85,10 @@ export default function AdminDashboard() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Team Overview</h1>
-                    <p className="text-slate-500 mt-1">Manage your team members and their roles.</p>
+                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Dashboard Overview</h1>
+                    <p className="text-slate-500 mt-1">Welcome back, Admin.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input
-                            type="text"
-                            placeholder="Search employee..."
-                            className="pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                        />
-                    </div>
                     <button
                         onClick={() => setIsAddModalOpen(true)}
                         className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors"
@@ -85,7 +99,42 @@ export default function AdminDashboard() {
                 </div>
             </div>
 
-            {/* Grid */}
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {stats.map((stat, i) => (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.1 }}
+                        key={i}
+                        className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm"
+                    >
+                        <div className="flex justify-between items-start mb-4">
+                            <div>
+                                <p className="text-slate-500 text-sm font-medium">{stat.label}</p>
+                                <h3 className="text-3xl font-bold text-slate-900 mt-1">{stat.value}</h3>
+                            </div>
+                            <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                                {/* Icon placeholder logic or static mapping */}
+                                {i === 0 && <Users className="w-5 h-5" />}
+                                {i === 1 && <div className="w-5 h-5 flex items-center justify-center font-bold">P</div>}
+                                {i === 2 && <Mail className="w-5 h-5" />}
+                                {i === 3 && <div className="w-5 h-5 font-bold">$</div>}
+                            </div>
+                        </div>
+                        <div className="text-xs text-slate-400 font-medium bg-slate-50 inline-block px-2 py-1 rounded-md">
+                            {stat.change}
+                        </div>
+                    </motion.div>
+                ))}
+            </div>
+
+            <div className="flex justify-between items-center">
+                <h2 className="text-xl font-bold text-slate-900">Recent Members</h2>
+                <a href="/admin/employees" className="text-sm font-medium text-blue-600 hover:text-blue-700">View All</a>
+            </div>
+
+            {/* Grid (Employees) */}
             <motion.div
                 variants={container}
                 initial="hidden"
