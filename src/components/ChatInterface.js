@@ -66,10 +66,9 @@ export default function ChatInterface({ currentUserRole }) {
             <div className="px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
                 <div>
                     <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                        Dataset General
+                        Collaboration Platform
                         <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                     </h2>
-                    <p className="text-xs text-slate-500">Company-wide communication channel via API polling.</p>
                 </div>
                 <button onClick={fetchMessages} className="p-2 hover:bg-white rounded-full transition-colors text-slate-400">
                     <RefreshCw className="w-4 h-4" />

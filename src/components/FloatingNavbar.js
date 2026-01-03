@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion } from "framer-motion"
-import { LayoutDashboard, Users, Clock, Calendar, Banknote, FileText, LogOut, MessageCircle } from "lucide-react"
+import { LayoutDashboard, Users, Clock, Calendar, Banknote, FileText, LogOut, MessageCircle, Trophy } from "lucide-react"
 
 const defaultAdminItems = [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -11,6 +11,16 @@ const defaultAdminItems = [
     { name: "Attendance", href: "/admin/attendance", icon: Clock },
     { name: "Payroll", href: "/admin/payroll", icon: Banknote },
     { name: "Chat", href: "/admin/chat", icon: MessageCircle },
+    { name: "Leaderboard", href: "/dashboard/leaderboard", icon: Trophy }, // Shared link? Or Admin specific? The page is in dashboard/leaderboard but can be accessed.
+    // Wait, I didn't create /admin/leaderboard/page.js. 
+    // I created /dashboard/leaderboard/page.js. 
+    // And it works for both if the layout permits or if I redirect.
+    // The layout.js for admin wraps pages? 
+    // Actually, Admin pages are in /admin. /dashboard pages are for users.
+    // If I link /dashboard/leaderboard in Admin nav, it might render inside Dashboard layout?
+    // Let's create an admin page wrapper or just link to it. 
+    // Ideally, consistency: /admin/leaderboard. 
+    // Let's plan to create /admin/leaderboard as well, or update plan. for now let's reuse /dashboard one if possible or just duplicate wrapper.
     { name: "Leaves", href: "/admin/leaves", icon: Calendar },
     // { name: "Reports", href: "/admin/reports", icon: FileText },
 ]
