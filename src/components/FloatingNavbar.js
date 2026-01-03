@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation"
 import { motion } from "framer-motion"
 import { LayoutDashboard, Users, Clock, Calendar, Banknote, FileText, LogOut } from "lucide-react"
 
-const navItems = [
+const defaultAdminItems = [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
     { name: "Employees", href: "/admin/employees", icon: Users },
     { name: "Attendance", href: "/admin/attendance", icon: Clock },
@@ -14,8 +14,9 @@ const navItems = [
     // { name: "Reports", href: "/admin/reports", icon: FileText },
 ]
 
-export default function FloatingNavbar() {
+export default function FloatingNavbar({ items }) {
     const pathname = usePathname()
+    const navLinks = items || defaultAdminItems
 
     return (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
@@ -25,12 +26,13 @@ export default function FloatingNavbar() {
                 transition={{ type: "spring", stiffness: 260, damping: 20 }}
                 className="bg-slate-900/90 backdrop-blur-lg border border-white/10 text-white p-2 rounded-full shadow-2xl flex items-center gap-1 overflow-hidden"
             >
-                {navItems.map((item) => {
-                    const isActive = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href))
+                {navLinks.map((item) => {
+                    const isActive = pathname === item.href || (item.href !== "/admin" && item.href !== "/dashboard" && pathname.startsWith(item.href))
+                    const label = item.name || item.label // Handle both casing
 
                     return (
                         <Link
-                            key={item.name}
+                            key={label}
                             href={item.href}
                             className="relative flex items-center"
                         >
@@ -57,7 +59,7 @@ export default function FloatingNavbar() {
                                     transition={{ duration: 0.3, ease: "easeOut" }}
                                     className="text-sm font-medium whitespace-nowrap overflow-hidden relative z-10"
                                 >
-                                    {item.name}
+                                    {label}
                                 </motion.span>
                             </motion.div>
                         </Link>

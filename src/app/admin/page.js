@@ -7,6 +7,7 @@ import AddEmployeeModal from "@/components/AddEmployeeModal"
 
 export default function AdminDashboard() {
     const [employees, setEmployees] = useState([])
+    const [attendanceList, setAttendanceList] = useState([])
     const [loading, setLoading] = useState(true)
     const [isAddModalOpen, setIsAddModalOpen] = useState(false)
 
@@ -40,6 +41,18 @@ export default function AdminDashboard() {
         }
     }
 
+    const fetchAttendance = async () => {
+        try {
+            const res = await fetch('/api/admin/attendance/today')
+            if (res.ok) {
+                const data = await res.json()
+                setAttendanceList(data.attendance || [])
+            }
+        } catch (e) {
+            console.error(e)
+        }
+    }
+
     useEffect(() => {
         const fetchStats = async () => {
             try {
@@ -57,6 +70,7 @@ export default function AdminDashboard() {
         // ... existing fetchEmployees call
         fetchEmployees()
         fetchStats()
+        fetchAttendance()
     }, [])
 
     const container = {
@@ -129,61 +143,88 @@ export default function AdminDashboard() {
                 ))}
             </div>
 
-            <div className="flex justify-between items-center">
-                <h2 className="text-xl font-bold text-slate-900">Recent Members</h2>
-                <a href="/admin/employees" className="text-sm font-medium text-blue-600 hover:text-blue-700">View All</a>
+            {/* Main Content Area: Today's Attendance Table */}
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+                    <div>
+                        <h2 className="text-xl font-bold text-slate-900">Today's Attendance</h2>
+                        <p className="text-sm text-slate-500">Real-time check-in updates</p>
+                    </div>
+                    <div className="flex gap-2">
+
+                        <button className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">View All History</button>
+                    </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="bg-slate-50/50 text-slate-500 text-xs uppercase font-semibold tracking-wider">
+                                <th className="px-6 py-4">Employee</th>
+                                <th className="px-6 py-4">ID</th>
+                                <th className="px-6 py-4">Department</th>
+                                <th className="px-6 py-4">Status</th>
+                                <th className="px-6 py-4">Check In</th>
+                                <th className="px-6 py-4">Check Out</th>
+
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                            {attendanceList.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6" className="px-6 py-12 text-center text-slate-400">
+                                        No attendance records found for today.
+                                    </td>
+                                </tr>
+                            ) : (
+                                attendanceList.map((record) => (
+                                    <tr key={record.id} className="hover:bg-slate-50/50 transition-colors group">
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold overflow-hidden text-sm">
+                                                    {record.avatar ? <img src={record.avatar} className="w-full h-full object-cover" /> : record.name.charAt(0)}
+                                                </div>
+                                                <div>
+                                                    <p className="font-semibold text-slate-900">{record.name}</p>
+                                                    <p className="text-xs text-slate-500">{record.role}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-slate-600 font-mono">
+                                            {record.employeeId}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+                                                {record.department || 'General'}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {record.checkOutTime ? (
+                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                                    Checked Out
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                                    Present
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-slate-900 font-medium">
+                                            {new Date(record.checkInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-slate-500">
+                                            {record.checkOutTime ? new Date(record.checkOutTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}
+                                        </td>
+
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-
-            {/* Grid (Employees) */}
-            <motion.div
-                variants={container}
-                initial="hidden"
-                animate="show"
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-            >
-                {employees.map((emp) => (
-                    <motion.div
-                        key={emp.id}
-                        variants={item}
-                        className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow group relative overflow-hidden"
-                    >
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                        <div className="flex justify-between items-start mb-4">
-                            <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 text-lg font-bold">
-                                {emp.avatar ? (
-                                    <img src={emp.avatar} alt={emp.name} className="w-full h-full rounded-full object-cover" />
-                                ) : (
-                                    emp.name.charAt(0)
-                                )}
-                            </div>
-                            <button className="text-slate-300 hover:text-slate-600 transition-colors">
-                                <MoreHorizontal className="w-5 h-5" />
-                            </button>
-                        </div>
-
-                        <div>
-                            <h3 className="font-semibold text-slate-900">{emp.name}</h3>
-                            <p className="text-sm text-slate-500 mb-1">{emp.role}</p>
-                            <div className="inline-flex items-center px-2 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-medium">
-                                {emp.employeeId}
-                            </div>
-                        </div>
-
-                        <div className="mt-6 pt-4 border-t border-slate-50 flex items-center justify-between text-slate-400">
-                            <button className="hover:text-blue-600 transition-colors p-1">
-                                <Mail className="w-4 h-4" />
-                            </button>
-                            <button className="hover:text-green-600 transition-colors p-1">
-                                <Phone className="w-4 h-4" />
-                            </button>
-                            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
-                                {emp.department || "General"}
-                            </span>
-                        </div>
-                    </motion.div>
-                ))}
-            </motion.div>
         </div>
     )
 }
