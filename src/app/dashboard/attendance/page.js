@@ -14,18 +14,28 @@ export default function AttendancePage() {
     const year = currentDate.getFullYear()
     const month = currentDate.getMonth()
 
-    // Handlers for navigation
+    // Navigation Logic
+    const canGoPrev = (() => {
+        if (!joiningDate) return true // Allow if joining date not loaded yet (or handle otherwise)
+        const prevMonthDate = new Date(year, month - 1, 1)
+        const joinDateObj = new Date(joiningDate)
+        const joinMonthStart = new Date(joinDateObj.getFullYear(), joinDateObj.getMonth(), 1)
+        return prevMonthDate >= joinMonthStart
+    })()
+
+    const canGoNext = (() => {
+        const nextMonthDate = new Date(year, month + 1, 1)
+        const today = new Date()
+        const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1)
+        return nextMonthDate <= currentMonthStart
+    })()
+
     const handlePrevMonth = () => {
-        const newDate = new Date(year, month - 1, 1)
-        if (joiningDate && newDate < new Date(new Date(joiningDate).setDate(1))) return // Don't go before joining date (by month)
-        setCurrentDate(newDate)
+        if (canGoPrev) setCurrentDate(new Date(year, month - 1, 1))
     }
 
     const handleNextMonth = () => {
-        const newDate = new Date(year, month + 1, 1)
-        const today = new Date()
-        if (newDate > today) return // Don't go to future months
-        setCurrentDate(newDate)
+        if (canGoNext) setCurrentDate(new Date(year, month + 1, 1))
     }
 
     const fetchHistory = async () => {
@@ -117,13 +127,21 @@ export default function AttendancePage() {
 
                 {/* Month Navigator */}
                 <div className="flex items-center gap-4 bg-white p-2 rounded-xl border border-slate-200 shadow-sm">
-                    <button onClick={handlePrevMonth} className="p-2 hover:bg-slate-100 rounded-lg text-slate-600 disabled:opacity-30">
+                    <button
+                        onClick={handlePrevMonth}
+                        disabled={!canGoPrev}
+                        className="p-2 hover:bg-slate-100 rounded-lg text-slate-600 disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed"
+                    >
                         <ChevronLeft className="w-5 h-5" />
                     </button>
                     <div className="font-bold text-slate-900 w-32 text-center">
                         {currentDate.toLocaleDateString([], { month: 'long', year: 'numeric' })}
                     </div>
-                    <button onClick={handleNextMonth} className="p-2 hover:bg-slate-100 rounded-lg text-slate-600 disabled:opacity-30">
+                    <button
+                        onClick={handleNextMonth}
+                        disabled={!canGoNext}
+                        className="p-2 hover:bg-slate-100 rounded-lg text-slate-600 disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed"
+                    >
                         <ChevronRight className="w-5 h-5" />
                     </button>
                 </div>
