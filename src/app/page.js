@@ -1,132 +1,93 @@
-"use client"
+import Link from "next/link"
+import { ArrowRight, Check } from "lucide-react"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { motion, AnimatePresence } from "framer-motion"
-import { Loader2, ArrowRight, UserCircle, Lock, AlertCircle } from "lucide-react"
+export default function LandingPage() {
+    return (
+        <div className="min-h-screen bg-white">
+            {/* Header */}
+            <header className="fixed w-full bg-white/50 backdrop-blur-md z-50 border-b border-slate-100">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold">
+                            D
+                        </div>
+                        <span className="font-bold text-slate-900 text-lg">Dayflow</span>
+                    </div>
+                    <Link href="/login" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+                        Sign In
+                    </Link>
+                </div>
+            </header>
 
-export default function LoginPage() {
-  const router = useRouter()
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
-  const [formData, setFormData] = useState({
-    loginId: "",
-    password: ""
-  })
+            {/* Hero Section */}
+            <main className="pt-32 pb-16 px-4">
+                <div className="max-w-4xl mx-auto text-center">
+                    <div className="inline-flex items-center rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-sm font-medium text-blue-600 mb-8">
+                        <span className="flex h-2 w-2 rounded-full bg-blue-600 mr-2"></span>
+                        HR Management Reimagined
+                    </div>
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setError("")
+                    <h1 className="text-5xl md:text-7xl font-bold text-slate-900 tracking-tight mb-8">
+                        Every workday, <br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                            Perfectly Aligned.
+                        </span>
+                    </h1>
 
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
-      })
+                    <p className="text-xl text-slate-500 mb-12 max-w-2xl mx-auto leading-relaxed">
+                        Streamline operations with Dayflow. From effortless onboarding to automated payroll, we enable teams to focus on what matters most.
+                    </p>
 
-      const data = await res.json()
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <Link
+                            href="/login"
+                            className="w-full sm:w-auto px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-semibold transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"
+                        >
+                            Get Started
+                            <ArrowRight className="w-5 h-5" />
+                        </Link>
+                        <button className="w-full sm:w-auto px-8 py-4 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-2xl font-semibold transition-all">
+                            View Demo
+                        </button>
+                    </div>
+                </div>
 
-      if (!res.ok) {
-        throw new Error(data.error || "Login failed")
-      }
+                {/* Subtle Visual Element */}
+                <div className="mt-20 relative max-w-5xl mx-auto">
+                    <div className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80">
+                        <div className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#60a5fa] to-[#6366f1] opacity-20 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"></div>
+                    </div>
 
-      // Successful login
-      if (data.user.role === "ADMIN") {
-        router.push("/admin")
-      } else {
-        router.push("/dashboard")
-      }
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
-  }
+                    <div className="rounded-3xl bg-slate-50 border border-slate-200 p-2 shadow-2xl">
+                        <div className="rounded-2xl bg-white aspect-[16/9] overflow-hidden flex items-center justify-center border border-slate-100">
+                            <div className="text-center">
+                                <p className="text-slate-400 font-medium">Dashboard Preview</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-  return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-1/2 -right-1/2 w-[1000px] h-[1000px] rounded-full bg-blue-100/50 blur-[120px]" />
-        <div className="absolute -bottom-1/2 -left-1/2 w-[1000px] h-[1000px] rounded-full bg-indigo-100/50 blur-[120px]" />
-      </div>
+                {/* Features Grid */}
+                <div className="max-w-7xl mx-auto mt-32 grid md:grid-cols-3 gap-8">
+                    {[
+                        { title: "Smart Payroll", desc: "Automated calculations customized to your structure." },
+                        { title: "Attendance Tracking", desc: "Seamless check-ins with precise reporting." },
+                        { title: "Team Management", desc: "Centralized employee profiles and documents." }
+                    ].map((feature, i) => (
+                        <div key={i} className="p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:border-blue-100 transition-colors">
+                            <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center text-blue-600 mb-6 border border-slate-100">
+                                <Check className="w-6 h-6" />
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-900 mb-3">{feature.title}</h3>
+                            <p className="text-slate-500">{feature.desc}</p>
+                        </div>
+                    ))}
+                </div>
+            </main>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/50 relative z-10 overflow-hidden"
-      >
-        <div className="h-2 bg-gradient-to-r from-blue-500 to-indigo-600" />
-
-        <div className="p-8">
-          <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Dayflow</h1>
-            <p className="text-slate-500 mt-2">Sign in to your account</p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700 ml-1">Employee ID / Email</label>
-              <div className="relative group">
-                <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                <input
-                  type="text"
-                  required
-                  value={formData.loginId}
-                  onChange={(e) => setFormData(prev => ({ ...prev, loginId: e.target.value }))}
-                  placeholder="e.g. OIJODO2021001"
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-slate-700 placeholder:text-slate-400"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700 ml-1">Password</label>
-              <div className="relative group">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                <input
-                  type="password"
-                  required
-                  value={formData.password}
-                  onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                  placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-slate-700 placeholder:text-slate-400"
-                />
-              </div>
-            </div>
-
-            <AnimatePresence>
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="bg-red-50 text-red-600 px-4 py-3 rounded-xl text-sm flex items-center gap-2"
-                >
-                  <AlertCircle className="w-4 h-4" />
-                  {error}
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed group"
-            >
-              {loading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <>
-                  Sign In
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </>
-              )}
-            </button>
-          </form>
+            <footer className="py-8 text-center text-slate-400 text-sm border-t border-slate-100 mt-20">
+                © 2026 Dayflow Inc. All rights reserved.
+            </footer>
         </div>
-      </motion.div>
-    </div>
-  )
+    )
 }

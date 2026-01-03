@@ -3,10 +3,12 @@
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { Plus, Search, Mail, Phone, MoreHorizontal } from "lucide-react"
+import AddEmployeeModal from "@/components/AddEmployeeModal"
 
 export default function AdminDashboard() {
     const [employees, setEmployees] = useState([])
     const [loading, setLoading] = useState(true)
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false)
 
     // Mock data for initial render if API fails or empty
     const mockEmployees = [
@@ -15,26 +17,23 @@ export default function AdminDashboard() {
         { id: 3, name: "Charlie Davis", role: "Designer", employeeId: "OICD2022003", avatar: null, department: "Design" },
     ]
 
-    useEffect(() => {
-        // Fetch employees API
-        // setEmployees(mockEmployees) 
-        // setLoading(false)
-        // Real fetch implementation:
-        const fetchEmployees = async () => {
-            try {
-                const res = await fetch('/api/admin/employees')
-                if (res.ok) {
-                    const data = await res.json()
-                    setEmployees(data.employees || [])
-                } else {
-                    setEmployees(mockEmployees) // Fallback for demo
-                }
-            } catch (e) {
-                setEmployees(mockEmployees)
-            } finally {
-                setLoading(false)
+    const fetchEmployees = async () => {
+        try {
+            const res = await fetch('/api/admin/employees')
+            if (res.ok) {
+                const data = await res.json()
+                setEmployees(data.employees || [])
+            } else {
+                setEmployees(mockEmployees) // Fallback for demo
             }
+        } catch (e) {
+            setEmployees(mockEmployees)
+        } finally {
+            setLoading(false)
         }
+    }
+
+    useEffect(() => {
         fetchEmployees()
     }, [])
 
@@ -55,6 +54,12 @@ export default function AdminDashboard() {
 
     return (
         <div className="space-y-8">
+            <AddEmployeeModal
+                isOpen={isAddModalOpen}
+                onClose={() => setIsAddModalOpen(false)}
+                onRefresh={fetchEmployees}
+            />
+
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
@@ -70,7 +75,10 @@ export default function AdminDashboard() {
                             className="pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                         />
                     </div>
-                    <button className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors">
+                    <button
+                        onClick={() => setIsAddModalOpen(true)}
+                        className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors"
+                    >
                         <Plus className="w-4 h-4" />
                         Add Employee
                     </button>
